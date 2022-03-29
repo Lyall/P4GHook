@@ -33,22 +33,12 @@ void WriteMemory(DWORD writeAddress, T value)
 
 void ReadIni()
 {
-	RECT desktop;
-	GetWindowRect(GetDesktopWindow(), &desktop);
-
 	INIReader config("Persona4Fix.ini");
 
 	bCRTEffects = config.GetBoolean("CRT Effects", "Enabled", true);
 	bCustomResolution = config.GetBoolean("Custom Resolution", "Enabled", true);
 	iCustomResX = config.GetInteger("Custom Resolution", "Width", -1);
 	iCustomResY = config.GetInteger("Custom Resolution", "Height", -1);
-
-	//config.WriteBoolean("CRT Effects", "Disable CRT Effects ", true);
-	//config.WriteBoolean("Custom Resolution", "Enable Custom Resolution ", true);
-	//config.WriteInteger("Custom Resolution X", "Resolution Width ", (int32_t)desktop.right);
-	//config.WriteInteger("Custom Resolution Y", "Resolution Height ", (int32_t)desktop.bottom);
-
-	//bCustomResolution = config.ReadBoolean("CustomResolution", "bCustomResolution", true);
 }
 
 void AspectRatio()
