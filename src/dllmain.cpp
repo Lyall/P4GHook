@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <iostream>
+#include <Windows.h>
 #include "external/inih/INIReader.h"
+
 
 // proxy.cpp
 bool Proxy_Attach();
@@ -23,6 +25,41 @@ float originalAspect = 1.777777791f;
 float newAspect;
 float aspectMulti;
 
+bool Hook(void* toHook, void* ourFunct, int len) {
+	if (len < 5) {
+		return false;
+	}
+
+	DWORD curProtection;
+	VirtualProtect(toHook, len, PAGE_EXECUTE_READWRITE, &curProtection);
+
+	memset(toHook, 0x90, len);
+
+	DWORD relativeAddress = ((DWORD)ourFunct - (DWORD)toHook) - 5;
+
+	*(BYTE*)toHook = 0xE9;
+	*(DWORD*)((DWORD)toHook + 1) = relativeAddress;
+
+	DWORD temp;
+	VirtualProtect(toHook, len, curProtection, &temp);
+
+	return true;
+}
+
+DWORD UIOffsetReturnJMP;
+float UIOffsetValue;
+void __declspec(naked) UIOffset_CC()
+{
+	__asm
+	{
+		subss xmm4,xmm0
+		addss xmm0,xmm0
+		movss xmm4,[UIOffsetValue]
+		jmp [UIOffsetReturnJMP]
+	}
+}
+
+
 template<typename T>
 void WriteMemory(DWORD writeAddress, T value)
 {
@@ -41,6 +78,15 @@ void ReadIni()
 	iCustomResX = config.GetInteger("Custom Resolution", "Width", -1);
 	iCustomResY = config.GetInteger("Custom Resolution", "Height", -1);
 	bSkipIntro = config.GetBoolean("Skip Intro", "Enabled", true);
+}
+
+void CenteredUI()
+{
+	int hookLength = 8;
+	DWORD UIOffsetAddress = 0x27CC0BF5;
+	UIOffsetValue = (float)(iCustomResX - 2560) / 2;
+	UIOffsetReturnJMP = UIOffsetAddress + hookLength;
+	Hook((void*)UIOffsetAddress, UIOffset_CC, hookLength);
 }
 
 void AspectRatio()
@@ -89,6 +135,8 @@ void CRTEffects()
 		// TV Scanlines
 		// "BB FF FF FF 3C" 
 		memcpy((LPVOID)((intptr_t)baseModule + 0x24680481), "\xBB\x00\x00\x00\x00", 5);
+
+		
 	}
 }
 
@@ -99,6 +147,7 @@ void Patch_Init()
 	SkipIntro();
 	AspectRatio();
 	CRTEffects();
+	CenteredUI();
 	Sleep(5000);
 }
 
