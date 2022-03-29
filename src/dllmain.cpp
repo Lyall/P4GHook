@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include <iostream>
-#include "external/inih/IniReader.h"
+#include "external/inih/INIReader.h"
 
 #define _CRT_SECURE_NO_WARNINGS 1
 
@@ -51,8 +51,6 @@ int ReadIni()
 		std::cout << "Can't load 'Persona4Fix.ini'\n";
 		return 1;
 	}
-
-	config[]
 
 	return 0;
 
