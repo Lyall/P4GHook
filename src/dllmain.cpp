@@ -14,21 +14,15 @@ float originalAspect = 1.777777791f;
 float newAspect;
 float aspectMulti;
 
-void WriteMemoryFloat(DWORD writeAddress, float writeValue)
+template<typename T>
+void WriteMemory(DWORD writeAddress, T value)
 {
 	DWORD oldProtect;
-	VirtualProtect((LPVOID)(writeAddress), sizeof(float), PAGE_EXECUTE_WRITECOPY, &oldProtect);
-	*(reinterpret_cast<float*>(writeAddress)) = writeValue;
-	VirtualProtect((LPVOID)(writeAddress), sizeof(float), oldProtect, NULL);
+	VirtualProtect((LPVOID)(writeAddress), sizeof(T), PAGE_EXECUTE_WRITECOPY, &oldProtect);
+	*(reinterpret_cast<T*>(writeAddress)) = value;
+	VirtualProtect((LPVOID)(writeAddress), sizeof(T), oldProtect, &oldProtect);
 }
 
-void WriteMemoryInt32(DWORD writeAddress, int32_t writeValue)
-{
-	DWORD oldProtect;
-	VirtualProtect((LPVOID)(writeAddress), sizeof(int32_t), PAGE_EXECUTE_WRITECOPY, &oldProtect);
-	*(reinterpret_cast<int32_t*>(writeAddress)) = writeValue;
-	VirtualProtect((LPVOID)(writeAddress), sizeof(int32_t), oldProtect, NULL);
-}
 
 void AspectRatio()
 {
@@ -39,10 +33,10 @@ void AspectRatio()
 	float aspectMulti = newAspect / originalAspect;
 
 	// Aspect ratio
-	WriteMemoryFloat(0x99A970, newAspect);
+	WriteMemory(0x99A970, newAspect);
 
 	// UI reference resolution
-	WriteMemoryFloat(0x99BC50, 1920 * aspectMulti);
+	WriteMemory(0x99BC50, 1920 * aspectMulti);
 }
 
 void SkipIntro()
@@ -58,12 +52,12 @@ void ChangeResolutions()
 	GetWindowRect(GetDesktopWindow(), &desktop);
 
 	// 2560x1440 Windowed
-	WriteMemoryInt32(0xA66BC8, (int32_t)desktop.right);
-	WriteMemoryInt32(0xA66BCC, (int32_t)desktop.bottom);
+	WriteMemory(0xA66BC8, (int32_t)desktop.right);
+	WriteMemory(0xA66BCC, (int32_t)desktop.bottom);
 
 	// 2560x1440 Fullscreen/Borderless
-	WriteMemoryInt32(0xA66BF8, (int32_t)desktop.right);
-	WriteMemoryInt32(0xA66BFC, (int32_t)desktop.bottom);
+	WriteMemory(0xA66BF8, (int32_t)desktop.right);
+	WriteMemory(0xA66BFC, (int32_t)desktop.bottom);
 
 }
 
