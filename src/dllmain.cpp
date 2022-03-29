@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include <stdio.h>
-#include <Windows.h>
+#include <iostream>
+#include "external/inih/IniReader.h"
+
+#define _CRT_SECURE_NO_WARNINGS 1
 
 // proxy.cpp
 bool Proxy_Attach();
@@ -10,6 +13,13 @@ using namespace std;
 
 HMODULE baseModule = GetModuleHandle(NULL);
 
+// Ini variables
+bool bCRTEffects;
+bool bCustomResolution;
+int iCustomResX;
+int iCustomResY;
+
+// 
 float originalAspect = 1.777777791f;
 float newAspect;
 float aspectMulti;
@@ -23,6 +33,36 @@ void WriteMemory(DWORD writeAddress, T value)
 	VirtualProtect((LPVOID)(writeAddress), sizeof(T), oldProtect, &oldProtect);
 }
 
+int GenerateIni()
+{
+	INIReader config("Persona4Fix.ini");
+
+	
+}
+
+int ReadIni()
+{
+	RECT desktop;
+	GetWindowRect(GetDesktopWindow(), &desktop);
+
+	INIReader config("Persona4Fix.ini");
+	
+	if (config.ParseError() < 0) {
+		std::cout << "Can't load 'Persona4Fix.ini'\n";
+		return 1;
+	}
+
+	config[]
+
+	return 0;
+
+	//config.WriteBoolean("CRT Effects", "Disable CRT Effects ", true);
+	//config.WriteBoolean("Custom Resolution", "Enable Custom Resolution ", true);
+	//config.WriteInteger("Custom Resolution X", "Resolution Width ", (int32_t)desktop.right);
+	//config.WriteInteger("Custom Resolution Y", "Resolution Height ", (int32_t)desktop.bottom);
+
+	//bCustomResolution = config.ReadBoolean("CustomResolution", "bCustomResolution", true);
+}
 
 void AspectRatio()
 {
@@ -74,6 +114,7 @@ void CRTEffects()
 
 void Patch_Init()
 {
+	ReadIni();
 	ChangeResolutions();
 	SkipIntro();
 	AspectRatio();
