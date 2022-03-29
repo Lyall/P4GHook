@@ -3,8 +3,6 @@
 #include <iostream>
 #include "external/inih/INIReader.h"
 
-#define _CRT_SECURE_NO_WARNINGS 1
-
 // proxy.cpp
 bool Proxy_Attach();
 void Proxy_Detach();
@@ -19,7 +17,7 @@ bool bCustomResolution;
 int iCustomResX;
 int iCustomResY;
 
-// 
+// Variables
 float originalAspect = 1.777777791f;
 float newAspect;
 float aspectMulti;
@@ -33,26 +31,17 @@ void WriteMemory(DWORD writeAddress, T value)
 	VirtualProtect((LPVOID)(writeAddress), sizeof(T), oldProtect, &oldProtect);
 }
 
-int GenerateIni()
-{
-	INIReader config("Persona4Fix.ini");
-
-	
-}
-
-int ReadIni()
+void ReadIni()
 {
 	RECT desktop;
 	GetWindowRect(GetDesktopWindow(), &desktop);
 
 	INIReader config("Persona4Fix.ini");
-	
-	if (config.ParseError() < 0) {
-		std::cout << "Can't load 'Persona4Fix.ini'\n";
-		return 1;
-	}
 
-	return 0;
+	bCRTEffects = config.GetBoolean("CRT Effects", "Enabled", true);
+	bCustomResolution = config.GetBoolean("Custom Resolution", "Enabled", true);
+	iCustomResX = config.GetInteger("Custom Resolution", "Width", -1);
+	iCustomResY = config.GetInteger("Custom Resolution", "Height", -1);
 
 	//config.WriteBoolean("CRT Effects", "Disable CRT Effects ", true);
 	//config.WriteBoolean("Custom Resolution", "Enable Custom Resolution ", true);
@@ -64,17 +53,16 @@ int ReadIni()
 
 void AspectRatio()
 {
-	RECT desktop;
-	GetWindowRect(GetDesktopWindow(), &desktop);
+	if (bCustomResolution) {
+		float newAspect = (float)iCustomResX / (float)iCustomResY;
+		float aspectMulti = newAspect / originalAspect;
 
-	float newAspect = (float)desktop.right / (float)desktop.bottom;
-	float aspectMulti = newAspect / originalAspect;
+		// Aspect ratio
+		WriteMemory(0x99A970, newAspect);
 
-	// Aspect ratio
-	WriteMemory(0x99A970, newAspect);
-
-	// UI reference resolution
-	WriteMemory(0x99BC50, 1920 * aspectMulti);
+		// UI reference resolution
+		WriteMemory(0x99BC50, 1920 * aspectMulti);
+	}
 }
 
 void SkipIntro()
@@ -86,28 +74,28 @@ void SkipIntro()
 
 void ChangeResolutions()
 {
-	RECT desktop;
-	GetWindowRect(GetDesktopWindow(), &desktop);
+	if (bCustomResolution) {
+		// 2560x1440 Windowed
+		WriteMemory(0xA66BC8, iCustomResX);
+		WriteMemory(0xA66BCC, iCustomResY);
 
-	// 2560x1440 Windowed
-	WriteMemory(0xA66BC8, (int32_t)desktop.right);
-	WriteMemory(0xA66BCC, (int32_t)desktop.bottom);
-
-	// 2560x1440 Fullscreen/Borderless
-	WriteMemory(0xA66BF8, (int32_t)desktop.right);
-	WriteMemory(0xA66BFC, (int32_t)desktop.bottom);
-
+		// 2560x1440 Fullscreen/Borderless
+		WriteMemory(0xA66BF8, iCustomResX);
+		WriteMemory(0xA66BFC, iCustomResY);
+	}
 }
 
 void CRTEffects()
 {
-	// TV Static
-	// "B4 BB 99 00 66 0F 6E C0 F3 0F"
-	memcpy((LPVOID)((intptr_t)baseModule + 0x2467DFB2), "\x90\x90\x90\x90", 4);
+	if (!bCRTEffects) {
+		// TV Static
+		// "B4 BB 99 00 66 0F 6E C0 F3 0F"
+		memcpy((LPVOID)((intptr_t)baseModule + 0x2467DFB2), "\x90\x90\x90\x90", 4);
 
-	// TV Scanlines
-	// "BB FF FF FF 3C" 
-	memcpy((LPVOID)((intptr_t)baseModule + 0x24680481), "\xBB\x00\x00\x00\x00", 5);
+		// TV Scanlines
+		// "BB FF FF FF 3C" 
+		memcpy((LPVOID)((intptr_t)baseModule + 0x24680481), "\xBB\x00\x00\x00\x00", 5);
+	}
 }
 
 void Patch_Init()
