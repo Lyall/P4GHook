@@ -16,6 +16,7 @@ bool bCRTEffects;
 bool bCustomResolution;
 int iCustomResX;
 int iCustomResY;
+bool bSkipIntro;
 
 // Variables
 float originalAspect = 1.777777791f;
@@ -39,6 +40,7 @@ void ReadIni()
 	bCustomResolution = config.GetBoolean("Custom Resolution", "Enabled", true);
 	iCustomResX = config.GetInteger("Custom Resolution", "Width", -1);
 	iCustomResY = config.GetInteger("Custom Resolution", "Height", -1);
+	bSkipIntro = config.GetBoolean("Skip Intro", "Enabled", true);
 }
 
 void AspectRatio()
@@ -57,19 +59,21 @@ void AspectRatio()
 
 void SkipIntro()
 {
-	// https://github.com/zarroboogs/p4gpc.tinyfixes/blob/master/tinyfixes/Fixes/IntroSkipPatch.cs
-	// "5E 5B 5D C3 B9 01 00 00 00"
-	memcpy((LPVOID)((intptr_t)baseModule + 0x2535E1C8), "\x5E\x5B\x5D\xC3\xE9\x30\x00\x00\x00", 9);
+	if (bSkipIntro) {
+		// https://github.com/zarroboogs/p4gpc.tinyfixes/blob/master/tinyfixes/Fixes/IntroSkipPatch.cs
+		// "5E 5B 5D C3 B9 01 00 00 00"
+		memcpy((LPVOID)((intptr_t)baseModule + 0x2535E1C8), "\x5E\x5B\x5D\xC3\xE9\x30\x00\x00\x00", 9);
+	}
 }
 
 void ChangeResolutions()
 {
 	if (bCustomResolution) {
-		// 2560x1440 Windowed
+		// 640x480
 		WriteMemory(0xA66BC8, iCustomResX);
 		WriteMemory(0xA66BCC, iCustomResY);
 
-		// 2560x1440 Fullscreen/Borderless
+		// 640x480 Fullscreen/Borderless
 		WriteMemory(0xA66BF8, iCustomResX);
 		WriteMemory(0xA66BFC, iCustomResY);
 	}
