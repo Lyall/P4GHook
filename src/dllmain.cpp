@@ -3,6 +3,8 @@
 #include <iostream>
 #include <Windows.h>
 #include "external/inih/INIReader.h"
+#include <chrono>
+#include <thread>
 
 
 // proxy.cpp
@@ -19,19 +21,21 @@ bool bCustomResolution;
 int iCustomResX;
 int iCustomResY;
 bool bSkipIntro;
+bool bCenteredUI;
 
 // Variables
 float originalAspect = 1.777777791f;
-float newAspect;
 float aspectMulti;
+float newAspect;
+int resScale;
 
 bool Hook(void* toHook, void* ourFunct, int len) {
 	if (len < 5) {
 		return false;
 	}
 
-	DWORD curProtection;
-	VirtualProtect(toHook, len, PAGE_EXECUTE_READWRITE, &curProtection);
+	DWORD oldProtect;
+	VirtualProtect(toHook, len, PAGE_EXECUTE_WRITECOPY, &oldProtect);
 
 	memset(toHook, 0x90, len);
 
@@ -40,8 +44,8 @@ bool Hook(void* toHook, void* ourFunct, int len) {
 	*(BYTE*)toHook = 0xE9;
 	*(DWORD*)((DWORD)toHook + 1) = relativeAddress;
 
-	DWORD temp;
-	VirtualProtect(toHook, len, curProtection, &temp);
+	DWORD tmp;
+	VirtualProtect(toHook, len, oldProtect, &tmp);
 
 	return true;
 }
@@ -78,21 +82,37 @@ void ReadIni()
 	iCustomResX = config.GetInteger("Custom Resolution", "Width", -1);
 	iCustomResY = config.GetInteger("Custom Resolution", "Height", -1);
 	bSkipIntro = config.GetBoolean("Skip Intro", "Enabled", true);
+	bCenteredUI = config.GetBoolean("Centered UI", "Enabled", true);
 }
 
 void CenteredUI()
 {
-	int hookLength = 8;
-	DWORD UIOffsetAddress = 0x27CC0BF5;
-	UIOffsetValue = (float)(iCustomResX - 2560) / 2;
-	UIOffsetReturnJMP = UIOffsetAddress + hookLength;
-	Hook((void*)UIOffsetAddress, UIOffset_CC, hookLength);
+	if (bCenteredUI)
+	{
+		// 0x60FB04 = Res scale (e.g 150)
+		resScale = *(int32_t*)(0xA0FB04); // 100 at start of game, need to fix
+		int resScaleMulti = resScale / 100;
+
+		float newAspect = (float)iCustomResX / iCustomResY;
+		float aspectMulti = newAspect / originalAspect;
+
+		int hookLength = 8;
+		DWORD UIOffsetAddress = 0x27CC0BF5;
+		UIOffsetValue = (float)((iCustomResX - (iCustomResX / aspectMulti)) / 2) * resScaleMulti; // There has to be a better way to calculate the offset
+		UIOffsetReturnJMP = UIOffsetAddress + hookLength;
+		Hook((void*)UIOffsetAddress, UIOffset_CC, hookLength);
+
+		// P4G.exe+27A57177 - C7 05 5C75A600 00007044 - mov [P4G.exe+66755C],44700000
+		memcpy((LPVOID)((intptr_t)baseModule + 0x27A57177), "\xC7\x05\x5C\x75\xA6\x00\x00\x40\xA1\x44", 10); // 1290/540 = 2.3888 // Need to calculate this
+		// P4G.exe+277C4570 - C7 83 E0000000 00007044 - mov [ebx+000000E0],44700000
+		memcpy((LPVOID)((intptr_t)baseModule + 0x277C4570), "\xC7\x83\xE0\x00\x00\x00\x00\x40\xA1\x44", 10); // 1290/540 = 2.3888 // Need to calculate this
+	}	
 }
 
 void AspectRatio()
 {
 	if (bCustomResolution) {
-		float newAspect = (float)iCustomResX / (float)iCustomResY;
+		float newAspect = (float)iCustomResX / iCustomResY;
 		float aspectMulti = newAspect / originalAspect;
 
 		// Aspect ratio
@@ -135,20 +155,22 @@ void CRTEffects()
 		// TV Scanlines
 		// "BB FF FF FF 3C" 
 		memcpy((LPVOID)((intptr_t)baseModule + 0x24680481), "\xBB\x00\x00\x00\x00", 5);
-
-		
 	}
 }
 
 void Patch_Init()
 {
+	#if _DEBUG
+	AllocConsole();
+	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+	std::cout << "Console initiated" << std::endl;
+	#endif	
 	ReadIni();
 	ChangeResolutions();
 	SkipIntro();
 	AspectRatio();
 	CRTEffects();
 	CenteredUI();
-	Sleep(5000);
 }
 
 void Patch_Uninit()
