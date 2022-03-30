@@ -3,8 +3,6 @@
 #include <iostream>
 #include <Windows.h>
 #include "external/inih/INIReader.h"
-#include <chrono>
-#include <thread>
 
 
 // proxy.cpp
@@ -63,7 +61,6 @@ void __declspec(naked) UIOffset_CC()
 	}
 }
 
-
 template<typename T>
 void WriteMemory(DWORD writeAddress, T value)
 {
@@ -90,22 +87,23 @@ void CenteredUI()
 	if (bCenteredUI)
 	{
 		// 0x60FB04 = Res scale (e.g 150)
-		resScale = *(int32_t*)(0xA0FB04); // 100 at start of game, need to fix
+		resScale = *(int32_t*)(0xA0FB04);
 		int resScaleMulti = resScale / 100;
 
 		float newAspect = (float)iCustomResX / iCustomResY;
 		float aspectMulti = newAspect / originalAspect;
 
-		int hookLength = 8;
+		int UIOffsetHookLength = 8;
 		DWORD UIOffsetAddress = 0x27CC0BF5;
 		UIOffsetValue = (float)((iCustomResX - (iCustomResX / aspectMulti)) / 2) * resScaleMulti; // There has to be a better way to calculate the offset
-		UIOffsetReturnJMP = UIOffsetAddress + hookLength;
-		Hook((void*)UIOffsetAddress, UIOffset_CC, hookLength);
+		UIOffsetReturnJMP = UIOffsetAddress + UIOffsetHookLength;
+		Hook((void*)UIOffsetAddress, UIOffset_CC, UIOffsetHookLength);
 
 		// P4G.exe+27A57177 - C7 05 5C75A600 00007044 - mov [P4G.exe+66755C],44700000
-		memcpy((LPVOID)((intptr_t)baseModule + 0x27A57177), "\xC7\x05\x5C\x75\xA6\x00\x00\x40\xA1\x44", 10); // 1290/540 = 2.3888 // Need to calculate this
+		WriteMemory(0x27E5717D, (float)960 * aspectMulti);
+
 		// P4G.exe+277C4570 - C7 83 E0000000 00007044 - mov [ebx+000000E0],44700000
-		memcpy((LPVOID)((intptr_t)baseModule + 0x277C4570), "\xC7\x83\xE0\x00\x00\x00\x00\x40\xA1\x44", 10); // 1290/540 = 2.3888 // Need to calculate this
+		WriteMemory(0x27BC4576, (float)960 * aspectMulti);		
 	}	
 }
 
@@ -160,11 +158,6 @@ void CRTEffects()
 
 void Patch_Init()
 {
-	#if _DEBUG
-	AllocConsole();
-	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
-	std::cout << "Console initiated" << std::endl;
-	#endif	
 	ReadIni();
 	ChangeResolutions();
 	SkipIntro();
@@ -186,7 +179,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, int ul_reason_for_call, LPVOID lpReserved
 	{
 		ourModule = hModule;
 		Proxy_Attach();
-
+		
 		Patch_Init();
 	}
 	if (ul_reason_for_call == DLL_PROCESS_DETACH)
@@ -195,6 +188,5 @@ BOOL APIENTRY DllMain(HMODULE hModule, int ul_reason_for_call, LPVOID lpReserved
 
 		Proxy_Detach();
 	}
-
 	return TRUE;
 }

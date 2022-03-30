@@ -1,6 +1,3 @@
 [submodule "src/external/inih"]
 	path = src/external/inih
 	url = https://github.com/jtilly/inih.git
-[submodule "src/external/ModUtils"]
-	path = src/external/ModUtils
-	url = https://github.com/CookiePLMonster/ModUtils.git
