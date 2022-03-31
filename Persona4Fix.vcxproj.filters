@@ -37,7 +37,7 @@
     <None Include="README.md">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Persona4Fix.ini">
+    <None Include="P4GHook.ini">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
