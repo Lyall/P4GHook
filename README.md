@@ -18,5 +18,6 @@ This fix is very hacky right now so you may run in to quite a few issues.
 - This will not be compatible with other mods that proxy dinput8.dll
 
 ## Credits
+RERevHook: https://www.nexusmods.com/residentevilrevelations/mods/26 </br>
 Intro Skip: https://github.com/zarroboogs/p4gpc.tinyfixes </br>
 inih: https://github.com/jtilly/inih
