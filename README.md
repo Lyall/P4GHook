@@ -9,7 +9,7 @@ This is a very work-in-progress ultrawide fix for Persona 4 Golden.
 ## Installation
 - Downloaded the [latest release](https://github.com/Lyall/P4GHook/releases).
 - Unzip in to the Persona 4 Golden game directory (e.g steamapps/common/Persona 4 Golden).
-- Edit *P4GHook.ini* to adjust settings.
+- Edit **P4GHook.ini** to adjust settings.
 
 ## Known Issues
 This fix is very hacky right now so you may run in to quite a few issues.
