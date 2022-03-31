@@ -2,12 +2,11 @@
 #include <stdio.h>
 #include "external/inih/INIReader.h"
 
-// proxy.cpp
-bool Proxy_Attach();
-void Proxy_Detach();
+bool dinput8_proxy_init();
 
 using namespace std;
 
+HMODULE ourModule = 0;
 HMODULE baseModule = GetModuleHandle(NULL);
 
 // Ini variables
@@ -153,7 +152,7 @@ DWORD __stdcall CenteredUI(void*)
 	return true;
 }
 
-void Patch_Init()
+void Main()
 {
 	ReadIni();
 	ChangeResolutions();
@@ -166,27 +165,23 @@ void Patch_Init()
 	}
 }
 
-void Patch_Uninit()
+BOOL APIENTRY DllMain( HMODULE hModule,
+                       DWORD  ul_reason_for_call,
+                       LPVOID lpReserved
+                     )
 {
-
-}
-
-HMODULE ourModule = 0;
-
-BOOL APIENTRY DllMain(HMODULE hModule, int ul_reason_for_call, LPVOID lpReserved)
-{
-	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-	{
+    switch (ul_reason_for_call)
+    {
+    case DLL_PROCESS_ATTACH:
 		ourModule = hModule;
-		Proxy_Attach();
-		
-		Patch_Init();
-	}
-	if (ul_reason_for_call == DLL_PROCESS_DETACH)
-	{
-		Patch_Uninit();
-
-		Proxy_Detach();
-	}
-	return TRUE;
+		dinput8_proxy_init();
+		Main();
+		break;
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
 }
+

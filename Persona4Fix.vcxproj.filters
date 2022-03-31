@@ -18,10 +18,10 @@
     <ClCompile Include="src/dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/proxy.cpp">
+    <ClCompile Include="src/stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src/stdafx.cpp">
+    <ClCompile Include="src\dinput8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -31,13 +31,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src/proxy.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="README.md">
       <Filter>Source Files</Filter>
     </None>
     <None Include="P4GHook.ini">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="src\dinput8.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
