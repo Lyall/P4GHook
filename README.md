@@ -3,7 +3,7 @@ This is a very work-in-progress ultrawide fix for Persona 4 Golden.
 
 ## Features
 - Ultrawide support
-- Disable CRT effects
+- Disable CRT effects (partially for now)
 - Intro skip
 
 ## Installation
