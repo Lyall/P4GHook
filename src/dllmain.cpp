@@ -163,28 +163,33 @@ void CRTEffects()
 
 DWORD __stdcall CenteredUI(void*)
 {
-	for (;;) // forever loop so that it updates the UI offset if the user changes resolution scale
+	float newAspect = (float)iCustomResX / iCustomResY;
+	float originalAspect = 1.777777791f;
+	if (bCenteredUI && newAspect > originalAspect)
 	{
-		// 0x60FB04 = Res scale (e.g 150)
-		resScale = *(int32_t*)(0xA0FB04);
-		resScaleMulti = resScale / (float)100;
+		for (;;) // forever loop so that it updates the UI offset if the user changes resolution scale
+		{
+			// 0x60FB04 = Res scale (e.g 150)
+			resScale = *(int32_t*)(0xA0FB04);
+			resScaleMulti = resScale / (float)100;
 
-		newAspect = (float)iCustomResX / iCustomResY;
-		aspectMulti = newAspect / originalAspect;
+			newAspect = (float)iCustomResX / iCustomResY;
+			aspectMulti = newAspect / originalAspect;
 
-		int UIOffsetHookLength = 8;
-		DWORD UIOffsetAddress = 0x27CC0BF5;
-		UIOffsetValue = (float)((iCustomResX - (iCustomResX / aspectMulti)) / 2) * resScaleMulti; // There has to be a better way to calculate the offset
-		UIOffsetReturnJMP = UIOffsetAddress + UIOffsetHookLength;
-		Hook((void*)UIOffsetAddress, UIOffset_CC, UIOffsetHookLength);
+			int UIOffsetHookLength = 8;
+			DWORD UIOffsetAddress = 0x27CC0BF5;
+			UIOffsetValue = (float)((iCustomResX - (iCustomResX / aspectMulti)) / 2) * resScaleMulti; // There has to be a better way to calculate the offset
+			UIOffsetReturnJMP = UIOffsetAddress + UIOffsetHookLength;
+			Hook((void*)UIOffsetAddress, UIOffset_CC, UIOffsetHookLength);
+			
+			// P4G.exe+27A57177 - C7 05 5C75A600 00007044 - mov [P4G.exe+66755C],44700000
+			WriteMemory(0x27E5717D, (float)960 * aspectMulti);
 
-		// P4G.exe+27A57177 - C7 05 5C75A600 00007044 - mov [P4G.exe+66755C],44700000
-		WriteMemory(0x27E5717D, (float)960 * aspectMulti);
+			// P4G.exe+277C4570 - C7 83 E0000000 00007044 - mov [ebx+000000E0],44700000
+			WriteMemory(0x27BC4576, (float)960 * aspectMulti);
 
-		// P4G.exe+277C4570 - C7 83 E0000000 00007044 - mov [ebx+000000E0],44700000
-		WriteMemory(0x27BC4576, (float)960 * aspectMulti);
-
-		Sleep(1000); // run every second
+			Sleep(1000); // run every second
+		}
 	}
 	return true;
 }
@@ -196,10 +201,7 @@ void Main()
 	SkipIntro();
 	AspectRatio();
 	CRTEffects();
-	if (bCenteredUI)
-	{
-		CreateThread(NULL, 0, CenteredUI, 0, NULL, 0); // This seems like a bad solution
-	}
+	CreateThread(NULL, 0, CenteredUI, 0, NULL, 0); // This seems like a bad solution
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,

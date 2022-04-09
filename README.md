@@ -14,6 +14,7 @@ This is a work-in-progress ultrawide fix for Persona 4 Golden.
 ## Known Issues
 This fix is a work-in-progress right now so you may run in to a few issues.
 - Centered UI results in several visual quirks.
+- Visual artifacting at the edge of the screen when wider than 32:9 aspect.
 
 ## Screenshots
 ![P4G_2022_04_09_23_07_33_784](https://user-images.githubusercontent.com/695941/162593075-3432a8db-b35c-44e5-a633-b09f0663ffc6.jpg)|
