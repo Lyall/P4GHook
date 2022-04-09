@@ -12,11 +12,9 @@ This is a very work-in-progress ultrawide fix for Persona 4 Golden.
 - Edit **P4GHook.ini** to adjust settings.
 
 ## Known Issues
-This fix is very hacky right now so you may run in to quite a few issues.
+This fix is a work-in-progress right now so you may run in to a few issues.
 - Centered UI results in several visual quirks.
 - Artifacting near the edge of the screen at 32:9 or wider.
-- Borderless mode is not affected by the new resolution.
-- This will not be compatible with other mods that proxy dinput8.dll
 
 ## Credits
 RERevHook: https://www.nexusmods.com/residentevilrevelations/mods/26 </br>
