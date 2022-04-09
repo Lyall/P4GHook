@@ -165,7 +165,7 @@ DWORD __stdcall CenteredUI(void*)
 {
 	float newAspect = (float)iCustomResX / iCustomResY;
 	float originalAspect = 1.777777791f;
-	if (bCenteredUI && newAspect > originalAspect)
+	if (bCustomResolution && bCenteredUI && newAspect > originalAspect)
 	{
 		for (;;) // forever loop so that it updates the UI offset if the user changes resolution scale
 		{
