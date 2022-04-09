@@ -1,5 +1,5 @@
 # P4GHook
-This is a very work-in-progress ultrawide fix for Persona 4 Golden. 
+This is a work-in-progress ultrawide fix for Persona 4 Golden. 
 
 ## Features
 - Ultrawide support
