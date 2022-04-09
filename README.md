@@ -17,6 +17,6 @@ This fix is a work-in-progress right now so you may run in to a few issues.
 - Artifacting near the edge of the screen at 32:9 or wider.
 
 ## Credits
-Uses [RERevHook](https://www.nexusmods.com/residentevilrevelations/mods/26) for the DLL proxy code. </br>
-Uses [Intro Skip](https://github.com/zarroboogs/p4gpc.tinyfixes) to add intro skip functionality. </br>
-Uses [inih](https://github.com/jtilly/inih).
+[RERevHook](https://www.nexusmods.com/residentevilrevelations/mods/26) for the DLL proxy code. </br>
+[Intro Skip](https://github.com/zarroboogs/p4gpc.tinyfixes) to add intro skip functionality. </br>
+[inih](https://github.com/jtilly/inih).
