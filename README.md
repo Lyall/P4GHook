@@ -19,4 +19,4 @@ This fix is a work-in-progress right now so you may run in to a few issues.
 ## Credits
 Uses part of the proxy DLL code from [RERevHook](https://www.nexusmods.com/residentevilrevelations/mods/26). </br>
 Uses [Intro Skip](https://github.com/zarroboogs/p4gpc.tinyfixes) to add intro skip functionality. </br>
-[inih](https://github.com/jtilly/inih).
+Uses [inih](https://github.com/jtilly/inih).
