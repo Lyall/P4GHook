@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <stdio.h>
+#include <Windows.h>
 #include "external/inih/INIReader.h"
 
 bool dinput8_proxy_init();
@@ -79,13 +80,49 @@ void ReadIni()
 	bCenteredUI = config.GetBoolean("Centered UI", "Enabled", true);
 }
 
+
 void ChangeResolutions()
 {
-	if (bCustomResolution) {
-		// 640x480
-		WriteMemory(0xA66BC8, iCustomResX);
-		WriteMemory(0xA66BCC, iCustomResY);
+	RECT desktop;
+	GetWindowRect(GetDesktopWindow(), &desktop);
+	
+	if (bCustomResolution && desktop.bottom >= 4320)
+	{
+		// 7680x4320
+		WriteMemory(0xA66C10, iCustomResX);
+		WriteMemory(0xA66C14, iCustomResY);
 	}
+	else if (bCustomResolution && desktop.bottom >= 2880)
+	{
+		// 5120x2880
+		WriteMemory(0xA66C08, iCustomResX);
+		WriteMemory(0xA66C0C, iCustomResY);
+	}
+	else if (bCustomResolution && desktop.bottom >= 2160)
+	{
+		// 3840x2160
+		WriteMemory(0xA66C00, iCustomResX);
+		WriteMemory(0xA66C04, iCustomResY);
+	}
+	else if (bCustomResolution && desktop.bottom >= 1440)
+	{
+		// 2560x1440
+		WriteMemory(0xA66BF8, iCustomResX);
+		WriteMemory(0xA66BFC, iCustomResY);
+	}
+	else if (bCustomResolution && desktop.bottom >= 1080)
+	{
+		// 1920x1080
+		WriteMemory(0xA66BF0, iCustomResX);
+		WriteMemory(0xA66BF4, iCustomResY);
+	}
+	else if (bCustomResolution && desktop.bottom >= 900)
+	{
+		// 1600x900
+		WriteMemory(0xA66BE8, iCustomResX);
+		WriteMemory(0xA66BEC, iCustomResY);
+	}
+	
 }
 
 void SkipIntro()
